@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import ContactContext from "../../context/contact/contactContext";
+import DateTimePicker from "react-datetime-picker";
 
 const ContactForm = () => {
   const contactContext = useContext(ContactContext);
@@ -11,28 +12,43 @@ const ContactForm = () => {
     } else {
       setContact({
         name: "",
+        start_time: new Date(Date.now()),
+        end_time: new Date(Date.now() + 1800000),
         email: "",
         phone: "",
-        type: "personal",
+        type: "consultation",
       });
     }
   }, [contactContext, current]);
 
   const [contact, setContact] = useState({
     name: "",
+    start_time: null,
+    end_time: null,
     email: "",
     phone: "",
-    type: "personal",
+    type: "consultation",
   });
 
-  const { name, email, phone, type } = contact;
+  const { name, email, phone, type, start_time, end_time } = contact;
 
-  const onChange = (e) =>
+  const onChange = (e) => {
     setContact({ ...contact, [e.target.name]: e.target.value });
+  };
+
+  const onStartTimeChange = (time) => {
+    setContact({ ...contact, start_time: time });
+  };
+
+  const onEndTimeChange = (time) => {
+    setContact({ ...contact, end_time: time });
+  };
 
   const onSubmit = (e) => {
     e.preventDefault();
-    if (current === null) {
+    if (start_time > end_time) {
+      return;
+    } else if (current === null) {
       addContact(contact);
     } else {
       updateContact(contact);
@@ -47,15 +63,46 @@ const ContactForm = () => {
   return (
     <form onSubmit={onSubmit}>
       <h2 className='text-primary'>
-        {current ? "Edit Contact" : "Add Contact"}
+        {current ? "Edit Appointment" : "Add Appointment"}
       </h2>
       <input
         type='text'
-        placeholder='Name'
+        placeholder='Name: Required'
         name='name'
         value={name}
         onChange={onChange}
       />
+      <div className='flex-column'>
+        <label for='start-time'>Start Time</label>
+        <DateTimePicker
+          name='start_time'
+          value={start_time}
+          onChange={onStartTimeChange}
+        />
+        <label for='end-time'>End Time</label>
+        <DateTimePicker
+          name='end_time'
+          value={end_time}
+          onChange={onEndTimeChange}
+        />
+      </div>
+      {/*}
+      <input
+        type='text'
+        placeholder='Start Time'
+        name='start_time'
+        value={start_time}
+        onChange={onChange}
+      />
+      
+      <input
+        type='text'
+        placeholder='End Time'
+        name='end_time'
+        value={end_time}
+        onChange={onChange}
+      />
+      */}
       <input
         type='email'
         placeholder='Email'
@@ -74,23 +121,25 @@ const ContactForm = () => {
       <input
         type='radio'
         name='type'
-        value='personal'
-        checked={type === "personal"}
+        value='consultation'
+        checked={type === "consultation"}
         onChange={onChange}
       />
-      Personal{" "}
+      {"  "}
+      Consultation{" "}
       <input
         type='radio'
         name='type'
-        value='professional'
-        checked={type === "professional"}
+        value='admin'
+        checked={type === "admin"}
         onChange={onChange}
-      />
-      Professional{" "}
+      />{" "}
+      Admin
+      {"  "}
       <div>
         <input
           type='submit'
-          value={current ? "Update Contact" : "Add Contact"}
+          value={current ? "Update Appointment" : "Add Appointment"}
           className='btn btn-primary btn-block'
         />
       </div>
